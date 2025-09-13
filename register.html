@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Register - Odisha Health Assistant</title>
+  <meta name="theme-color" content="#14b8a6"/>
+  <style>
+    :root { --brand:#14b8a6; --bg:#f1f5f9; --card:#fff; --border:#e2e8f0; --text:#0f172a; }
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;margin:0;}
+    .card{background:var(--card);padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);width:330px;border:1px solid var(--border);}
+    h2{margin:.2rem 0 1rem;}
+    label{display:block;font-weight:700;margin:.6rem 0 .2rem;}
+    input{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;}
+    button{width:100%;padding:12px;margin-top:12px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;}
+    .hint{font-size:.9rem;color:#475569;margin-top:.6rem;}
+    .err{color:#b91c1c;font-size:.9rem;margin-top:.4rem;}
+    a{color:var(--brand);text-decoration:none;font-weight:700;}
+  </style>
+</head>
+<body>
+  <div class="card" role="form" aria-labelledby="title">
+    <h2 id="title">Register</h2>
+    <label for="name">Full Name</label>
+    <input id="name" placeholder="Your name" autocomplete="name" required/>
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="you@example.com" autocomplete="email" required/>
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="Minimum 6 characters" minlength="6" required/>
+    <div class="err" id="err" aria-live="assertive"></div>
+    <button id="regBtn">Register</button>
+    <p class="hint">Already registered? <a href="index.html">Go to Home</a></p>
+  </div>
+
+<script>
+document.getElementById('regBtn').addEventListener('click', register);
+document.addEventListener('keydown', (e)=>{ if(e.key==='Enter') register(); });
+
+function register(){
+  const err = document.getElementById('err');
+  err.textContent = '';
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  if(!name){ err.textContent='Please enter your name.'; return; }
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ err.textContent='Please enter a valid email.'; return; }
+  if(!password || password.length < 6){ err.textContent='Password must be at least 6 characters.'; return; }
+
+  const user = { name, email, createdAt: new Date().toISOString() };
+  try { localStorage.setItem('user', JSON.stringify(user)); } catch {}
+  alert(`Registered! Welcome ${name}`);
+  window.location = 'index.html';
+}
+</script>
+</body>
+</html>
