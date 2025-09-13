@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Odisha Health Assistant</title>
+  <meta name="description" content="Preventive healthcare tips, vaccine schedules, nearby services, and a simple chatbot for Odisha."/>
+  <meta name="theme-color" content="#14b8a6"/>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" type="image/png">
+  <!-- iOS PWA support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    :root {
+      --brand:#14b8a6; --brand-dark:#0ea5a4; --bg:#f8fafc; --text:#0f172a; --muted:#334155;
+      --card:#ffffff; --border:#e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    header { background:var(--brand); color:#fff; padding:.8rem 1rem; position:sticky; top:0; z-index:10; }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    nav { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .brand { display:flex; align-items:center; gap:.6rem; font-weight:800; letter-spacing:.2px; }
+    .brand img { width:28px; height:28px; border-radius:6px; }
+    .links a { margin:0 8px; color:#fff; font-weight:700; text-decoration:none; }
+    .links a:hover { text-decoration: underline; }
+    .user { font-size:.95rem; opacity:.95; }
+    .container { padding:1rem; max-width:1100px; margin:auto; }
+    .grid { display:grid; grid-template-columns: 1fr; gap:16px; }
+    @media(min-width:900px){ .grid.cols-2 { grid-template-columns: 1fr 1fr; } }
+    .card { background:var(--card); padding:1rem; border-radius:12px; border:1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+    h1 { font-size:1.5rem; margin:.2rem 0 .2rem; }
+    h2 { font-size:1.2rem; margin:0 0 .4rem; color:#0b3d3c; }
+    p { margin:.3rem 0; color:var(--muted); }
+    .btn { display:inline-block; padding:10px 14px; border-radius:10px; font-weight:700; border:2px solid transparent; cursor:pointer; text-decoration:none; }
+    .btn.primary { background:var(--brand); color:white; }
+    .btn.primary:hover { background:var(--brand-dark); }
+    .btn.secondary { background:white; border-color:var(--brand); color:var(--brand); }
+    .btn.link { background:transparent; color:#0b3d3c; border:none; padding:0; }
+    .pill { display:inline-block; margin:4px; padding:6px 12px; border-radius:20px; font-weight:700; color:#fff; }
+    .pill.dengue { background:#ef4444; } .pill.malaria { background:#7c3aed; } .pill.covid { background:#3b82f6; }
+    footer { background:#f1f5f9; padding:1rem; text-align:center; font-size:.9rem; border-top:1px solid var(--border); }
+    /* Chat */
+    .chatbox { height:240px; overflow:auto; border:1px solid var(--border); border-radius:10px; padding:8px; background:#fff; }
+    .msg { margin:.35rem 0; }
+    .msg .who { font-weight:700; margin-right:.3rem; }
+    .chat-actions { display:flex; gap:8px; margin-top:.6rem; }
+    .chat-actions input { flex:1; padding:10px; border:1px solid var(--border); border-radius:10px; }
+    .alert { display:none; background:#fffbeb; border:1px solid #fde68a; padding:.7rem; border-radius:10px; margin:.5rem 0; color:#854d0e; }
+    .install { display:none; margin-left:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <nav aria-label="Primary">
+        <div class="brand">
+          <img src="icon-192.png" alt="">
+          <span>Odisha Health Assistant</span>
+        </div>
+        <div class="links">
+          <a href="#home">Home</a>
+          <a href="#prevention">Prevention</a>
+          <a href="#vaccines">Polio Schedule</a>
+          <a href="#services">Services</a>
+          <a href="#chat">Chat</a>
+          <a href="register.html">Register</a>
+          <button id="installBtn" class="btn secondary install">Install app</button>
+        </div>
+        <div class="user" id="userWelcome" aria-live="polite"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="home">
+    <div id="outbreakAlert" class="alert" role="status" aria-live="polite"></div>
+
+    <div class="card">
+      <h1>Preventive Health Assistant for Odisha</h1>
+      <p>Guidance on preventive healthcare, symptoms, polio schedule, and nearby health services.</p>
+      <div class="grid cols-2">
+        <div>
+          <p><strong>Quick Tips</strong></p>
+          <span class="pill dengue" role="button" tabindex="0">🦟 Dengue</span>
+          <span class="pill malaria" role="button" tabindex="0">🦟 Malaria</span>
+          <span class="pill covid" role="button" tabindex="0">😷 COVID</span>
+          <p id="quickTip" style="margin-top:.6rem;"></p>
+          <div style="margin-top:.8rem;">
+            <a class="btn primary" href="#chat">Open Chat</a>
+            <a class="btn secondary" href="#vaccines">View Polio Schedule</a>
+            <a class="btn link" href="https://wa.me/0000000000?text=Hello" target="_blank" rel="noopener">Chat on WhatsApp</a>
+            <a class="btn link" href="sms:0000000000?body=Hello">Chat via SMS</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section id="prevention" class="card" tabindex="-1">
+      <h2>Prevention & Hygiene</h2>
+      <ul>
+        <li>Boil or treat drinking water and wash hands with soap.</li>
+        <li>Remove stagnant water, use bed nets, wear long sleeves.</li>
+        <li>Stay home if unwell, cover coughs, ventilate rooms.</li>
+        <li>Attend ANC visits, take iron–folic acid, and follow timely immunization.</li>
+      </ul>
+    </section>
+
+    <section id="vaccines" class="card" tabindex="-1">
+      <h2>Polio Schedule</h2>
+      <ul>
+        <li>Birth: OPV‑0</li>
+        <li>6 weeks: OPV‑1</li>
+        <li>10 weeks: OPV‑2</li>
+        <li>14 weeks: OPV‑3</li>
+      </ul>
+      <p style="color:#475569;">Confirm exact schedule with your local health worker.</p>
+    </section>
+
+    <section id="services" class="card" tabindex="-1">
+      <h2>Nearby Services</h2>
+      <p><b>PHC Badamba</b> — 9 AM to 4 PM (OPD, immunization, ANC)</p>
+      <p><b>CHC Banki</b> — 9 AM to 6 PM (OPD, lab tests, emergency)</p>
+      <p style="margin-top:.4rem;"><a class="btn secondary" href="tel:104">Call Health Helpline 104</a></p>
+    </section>
+
+    <section id="chat" class="card" tabindex="-1">
+      <h2>Chat Assistant</h2>
+      <div class="chatbox" id="chatBox" aria-live="polite" aria-label="Chat messages"></div>
+      <div class="chat-actions">
+        <input id="userMsg" placeholder="Type a message…" aria-label="Message"/>
+        <button class="btn primary" id="sendBtn">Send</button>
+        <button class="btn secondary" id="voiceBtn" aria-pressed="false" title="Toggle voice">🔊 Voice Off</button>
+      </div>
+      <p style="margin-top:.5rem;color:#475569;">Educational guidance only. Not medical advice.</p>
+    </section>
+  </main>
+
+  <footer>
+    Government of Odisha • MedTech Hackathon · Privacy‑aware and offline‑ready PWA
+  </footer>
+
+  <noscript>
+    <div class="container" role="alert" aria-live="assertive">
+      JavaScript is required for full functionality (chat, install, offline).
+    </div>
+  </noscript>
+
+<script>
+/* ----- Simple state & user greeting ----- */
+(function initUser() {
+  const userWelcome = document.getElementById('userWelcome');
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    userWelcome.textContent = user?.name ? `Welcome, ${user.name}` : '';
+  } catch { userWelcome.textContent = ''; }
+})();
+
+/* ----- Quick tips content ----- */
+const TIPS = {
+  dengue: "Dengue: Remove standing water, use nets/repellent, drink fluids. Danger signs (bleeding, severe pain, breathing trouble) → seek care.",
+  malaria: "Malaria: Sleep under treated nets, use repellents, test early if fever with chills. Complete full treatment as prescribed.",
+  covid: "COVID: Rest, fluids, isolate if symptomatic, ventilate rooms. Danger: breathlessness, chest pain, confusion → urgent care."
+};
+document.querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', () => {
+    const id = [...p.classList].find(c => TIPS[c]);
+    document.getElementById('quickTip').textContent = id ? TIPS[id] : '';
+  });
+  p.addEventListener('keypress', e => { if (e.key === 'Enter') p.click(); });
+});
+
+/* ----- Simple chatbot ----- */
+const chatBox = document.getElementById('chatBox');
+const userMsg = document.getElementById('userMsg');
+const sendBtn = document.getElementById('sendBtn');
+const voiceBtn = document.getElementById('voiceBtn');
+let voice = localStorage.getItem('voice') === 'on';
+
+function setVoiceUI() {
+  voiceBtn.textContent = voice ? '🔊 Voice On' : '🔊 Voice Off';
+  voiceBtn.setAttribute('aria-pressed', voice ? 'true' : 'false');
+}
+setVoiceUI();
+
+function addMsg(who, text) {
+  const p = document.createElement('p');
+  p.className = 'msg';
+  p.innerHTML = `<span class="who">${who}:</span> <span>${text}</span>`;
+  chatBox.appendChild(p);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function speak(text) {
+  if (!voice || !('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function botReply(input) {
+  const t = input.toLowerCase();
+  let reply = "I can guide on vaccines, prevention, and services. Try asking about fever, dengue, or vaccine.";
+  if (t.includes('fever')) reply = "Take rest and drink fluids. If high fever or danger signs (bleeding, severe pain, breathing trouble), visit a health center promptly.";
+  else if (t.includes('vaccine') || t.includes('opv')) reply = "Children need OPV doses at birth, 6, 10, and 14 weeks. Keep the immunization card safe.";
+  else if (t.includes('dengue')) reply = TIPS.dengue;
+  else if (t.includes('malaria')) reply = TIPS.malaria;
+  else if (t.includes('covid') || t.includes('mask')) reply = TIPS.covid;
+  addMsg('Bot', reply);
+  speak(reply);
+}
+
+function sendMsg() {
+  const text = userMsg.value.trim();
+  if (!text) return;
+  addMsg('You', text);
+  userMsg.value = '';
+  setTimeout(() => botReply(text), 200);
+}
+
+sendBtn.addEventListener('click', sendMsg);
+userMsg.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendMsg(); }});
+voiceBtn.addEventListener('click', () => {
+  voice = !voice;
+  localStorage.setItem('voice', voice ? 'on' : 'off');
+  setVoiceUI();
+});
+
+addMsg('Bot', 'Namaskar! How can I help you today?');
+
+/* ----- Smooth in-page navigation focus for accessibility ----- */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', (e) => {
+    const id = a.getAttribute('href').slice(1);
+    const sec = document.getElementById(id);
+    if (sec) {
+      e.preventDefault();
+      sec.scrollIntoView({ behavior:'smooth', block:'start' });
+      setTimeout(()=>sec.focus(), 400);
+    }
+  });
+});
+
+/* ----- Outbreak alert sample ----- */
+(function outbreak() {
+  const el = document.getElementById('outbreakAlert');
+  // Set to true to show; replace text dynamically from API later
+  const show = true;
+  const msg = "Dengue advisory: Remove standing water, use repellent, wear long sleeves in evenings.";
+  if (show) { el.style.display='block'; el.textContent = msg; }
+})();
+
+/* ----- Service worker registration & A2HS prompt ----- */
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = 'inline-block';
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  installBtn.style.display = 'none';
+});
+
+// Register SW
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
